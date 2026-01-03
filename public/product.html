@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Product Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .card {
+      max-width: 400px;
+      background: white;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    .company {
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1 id="name">Product Name</h1>
+
+    <div class="row">
+      <span class="label">Power</span>
+      <span id="power"></span>
+    </div>
+
+    <div class="row">
+      <span class="label">Voltage</span>
+      <span id="voltage"></span>
+    </div>
+
+    <div class="row">
+      <span class="label">Warranty</span>
+      <span id="warranty"></span>
+    </div>
+
+    <div class="company">
+      © Orbital LED Solutions
+    </div>
+  </div>
+
+  <script>
+    // Data injected by server
+    const product = PRODUCT_DATA;
+
+    document.getElementById("name").innerText = product.name;
+    document.getElementById("power").innerText = product.power;
+    document.getElementById("voltage").innerText = product.voltage;
+    document.getElementById("warranty").innerText = product.warranty;
+  </script>
+</body>
+</html>

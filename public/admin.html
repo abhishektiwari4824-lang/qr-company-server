@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel - Product Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    .card {
+      max-width: 400px;
+      background: white;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2>Product Admin Panel</h2>
+
+    <input id="id" placeholder="Product ID (FL100)">
+    <input id="name" placeholder="Product Name">
+    <input id="power" placeholder="Power">
+    <input id="voltage" placeholder="Voltage">
+    <input id="warranty" placeholder="Warranty">
+
+    <button onclick="saveProduct()">Save Product</button>
+  </div>
+
+  <script>
+    function saveProduct() {
+      const product = {
+        id: document.getElementById("id").value,
+        name: document.getElementById("name").value,
+        power: document.getElementById("power").value,
+        voltage: document.getElementById("voltage").value,
+        warranty: document.getElementById("warranty").value
+      };
+
+      fetch("/admin/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product)
+      })
+      .then(() => alert("✅ Product saved successfully"));
+    }
+  </script>
+</body>
+</html>

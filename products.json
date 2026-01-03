@@ -1,0 +1,35 @@
+[
+  {
+    "id": "FL100",
+    "name": "100W LED Flood Light",
+    "power": "100 Watt",
+    "voltage": "220V AC",
+    "lumens": "10000 lm",
+    "color": "Cool White",
+    "warranty": "2 Years",
+    "price": "₹2500",
+    "image": "/images/100W.jpg",
+    "datasheet": "/datasheets/100w.pdf"
+  },
+  {
+    "id": "FL200",
+    "name": "200W LED Flood Light",
+    "power": "200 Watt",
+    "voltage": "220V AC",
+    "lumens": "20000 lm",
+    "color": "Cool White",
+    "warranty": "3 Years",
+    "price": "₹4500",
+    "image": "/images/200W.jpg",
+    "datasheet": "/datasheets/200w.pdf"
+  },
+  {
+    "id": "FL300",
+    "name": "300W LED Flood Light",
+    "power": "300 Watt",
+    "voltage": "220V AC",
+    "warranty": "5 Years",
+    "image": "/images/300W.jpg",
+    "datasheet": "/datasheets/300w.pdf"
+  }
+]
