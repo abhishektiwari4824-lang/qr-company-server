@@ -9,6 +9,12 @@ const app = express();
 /* ---------- MIDDLEWARE ---------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+/* ❌ BLOCK direct admin.html access */
+app.get("/admin.html", (req, res) => {
+  return res.status(404).send("Not Found");
+});
+
 app.use(express.static("public"));
 
 app.use(
@@ -19,30 +25,9 @@ app.use(
   })
 );
 
-/* ---------- DATABASE FILE ---------- */
+/* ---------- DATABASE ---------- */
 const DATA_FILE = path.join(__dirname, "products.json");
-
-/* ---------- ENSURE FOLDERS EXIST ---------- */
-["public/images", "public/datasheets"].forEach(dir => {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-});
-
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, "[]");
-}
-
-/* ---------- FILE UPLOAD CONFIG ---------- */
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.fieldname === "image") cb(null, "public/images");
-    else cb(null, "public/datasheets");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
-});
-
-const upload = multer({ storage });
+if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, "[]");
 
 /* ---------- AUTH ---------- */
 app.post("/login", (req, res) => {
@@ -60,89 +45,17 @@ app.get("/logout", (req, res) => {
 });
 
 function isAdmin(req, res, next) {
-  req.session.admin ? next() : res.sendStatus(403);
+  if (req.session.admin) next();
+  else res.redirect("/login.html");
 }
 
-/* ---------- CREATE PRODUCT ---------- */
-app.post(
-  "/api/products",
-  isAdmin,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "datasheet", maxCount: 1 }
-  ]),
-  (req, res) => {
-    const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-
-    const product = {
-      id: req.body.id,
-      name: req.body.name,
-      model: req.body.model,
-      invoiceNo: req.body.invoiceNo,
-      invoiceDate: req.body.invoiceDate,
-      productionDate: req.body.productionDate,
-      power: req.body.power,
-      voltage: req.body.voltage,
-      warranty: req.body.warranty,
-      image: req.files?.image
-        ? "/images/" + req.files.image[0].filename
-        : "",
-      datasheet: req.files?.datasheet
-        ? "/datasheets/" + req.files.datasheet[0].filename
-        : ""
-    };
-
-    products.push(product);
-    fs.writeFileSync(DATA_FILE, JSON.stringify(products, null, 2));
-    res.sendStatus(200);
-  }
-);
-
-/* ---------- GET ALL PRODUCTS ---------- */
-app.get("/api/products", isAdmin, (req, res) => {
-  const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-  res.json(products);
+/* ✅ PROTECTED ADMIN ROUTE */
+app.get("/admin", isAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-/* ---------- DELETE PRODUCT ---------- */
-app.delete("/api/products/:id", isAdmin, (req, res) => {
-  const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-
-  const updatedProducts = products.filter(
-    p => p.id !== req.params.id
-  );
-
-  if (updatedProducts.length === products.length) {
-    return res.status(404).send("Product not found");
-  }
-
-  fs.writeFileSync(DATA_FILE, JSON.stringify(updatedProducts, null, 2));
-  res.sendStatus(200);
-});
-
-/* ---------- PUBLIC PRODUCT PAGE ---------- */
-app.get("/product/:id", (req, res) => {
-  const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-  const product = products.find(p => p.id === req.params.id);
-
-  if (!product) return res.status(404).send("Product not found");
-
-  let html = fs.readFileSync(
-    path.join(__dirname, "public", "product.html"),
-    "utf-8"
-  );
-
-  html = html.replace(
-    "const product = PRODUCT_DATA;",
-    `const product = ${JSON.stringify(product)};`
-  );
-
-  res.send(html);
-});
-
-/* ---------- START SERVER (RENDER + LOCALHOST) ---------- */
+/* ---------- START SERVER ---------- */
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log("✅ Server running on port " + PORT);
 });
