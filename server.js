@@ -5,7 +5,10 @@ const session = require("express-session");
 const multer = require("multer");
 
 const app = express();
+
+/* ---------- MIDDLEWARE ---------- */
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.use(
@@ -16,9 +19,19 @@ app.use(
   })
 );
 
+/* ---------- DATABASE FILE ---------- */
 const DATA_FILE = path.join(__dirname, "products.json");
 
-/* ---------- FILE STORAGE ---------- */
+/* ---------- ENSURE FOLDERS EXIST ---------- */
+["public/images", "public/datasheets"].forEach(dir => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
+
+if (!fs.existsSync(DATA_FILE)) {
+  fs.writeFileSync(DATA_FILE, "[]");
+}
+
+/* ---------- FILE UPLOAD CONFIG ---------- */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (file.fieldname === "image") cb(null, "public/images");
@@ -33,7 +46,8 @@ const upload = multer({ storage });
 
 /* ---------- AUTH ---------- */
 app.post("/login", (req, res) => {
-  if (req.body.username === "admin" && req.body.password === "admin123") {
+  const { username, password } = req.body;
+  if (username === "admin" && password === "admin123") {
     req.session.admin = true;
     res.sendStatus(200);
   } else {
@@ -58,14 +72,22 @@ app.post(
     { name: "datasheet", maxCount: 1 }
   ]),
   (req, res) => {
-    const products = JSON.parse(fs.readFileSync(DATA_FILE));
+    const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
 
     const product = {
-      ...req.body,
-      image: req.files.image
+      id: req.body.id,
+      name: req.body.name,
+      model: req.body.model,
+      invoiceNo: req.body.invoiceNo,
+      invoiceDate: req.body.invoiceDate,
+      productionDate: req.body.productionDate,
+      power: req.body.power,
+      voltage: req.body.voltage,
+      warranty: req.body.warranty,
+      image: req.files?.image
         ? "/images/" + req.files.image[0].filename
         : "",
-      datasheet: req.files.datasheet
+      datasheet: req.files?.datasheet
         ? "/datasheets/" + req.files.datasheet[0].filename
         : ""
     };
@@ -78,12 +100,13 @@ app.post(
 
 /* ---------- GET ALL PRODUCTS ---------- */
 app.get("/api/products", isAdmin, (req, res) => {
-  res.json(JSON.parse(fs.readFileSync(DATA_FILE)));
+  const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+  res.json(products);
 });
 
 /* ---------- DELETE PRODUCT ---------- */
 app.delete("/api/products/:id", isAdmin, (req, res) => {
-  const products = JSON.parse(fs.readFileSync(DATA_FILE));
+  const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
 
   const updatedProducts = products.filter(
     p => p.id !== req.params.id
@@ -99,7 +122,7 @@ app.delete("/api/products/:id", isAdmin, (req, res) => {
 
 /* ---------- PUBLIC PRODUCT PAGE ---------- */
 app.get("/product/:id", (req, res) => {
-  const products = JSON.parse(fs.readFileSync(DATA_FILE));
+  const products = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
   const product = products.find(p => p.id === req.params.id);
 
   if (!product) return res.status(404).send("Product not found");
@@ -117,7 +140,9 @@ app.get("/product/:id", (req, res) => {
   res.send(html);
 });
 
-/* ---------- START SERVER ---------- */
-app.listen(3000, () => {
-  console.log("✅ Server running at http://localhost:3000");
+/* ---------- START SERVER (RENDER + LOCALHOST) ---------- */
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("✅ Server running on port " + PORT);
 });
