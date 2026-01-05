@@ -77,9 +77,11 @@ async function login() {
   });
 
   if (res.ok) {
-    window.location.href = "/admin.html";
+    // 🔐 REDIRECT TO PROTECTED ADMIN ROUTE
+    window.location.href = "/admin";
   } else {
-    document.getElementById("error").innerText = "❌ Invalid username or password";
+    document.getElementById("error").innerText =
+      "❌ Invalid username or password";
   }
 }
 </script>
