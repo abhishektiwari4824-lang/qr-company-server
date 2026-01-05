@@ -6,13 +6,15 @@
 
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background: #f4f6f8;
       padding: 20px;
       text-align: center;
     }
 
-    h2 { margin-bottom: 20px; }
+    h2 {
+      margin-bottom: 20px;
+    }
 
     .menu button {
       padding: 12px 20px;
@@ -29,7 +31,7 @@
     .logout { background: #dc3545; }
 
     .card {
-      max-width: 500px;
+      max-width: 520px;
       background: white;
       margin: 20px auto;
       padding: 20px;
@@ -39,8 +41,17 @@
       text-align: left;
     }
 
-    label { font-weight: bold; display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 4px; }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
 
     .save {
       margin-top: 15px;
@@ -52,6 +63,27 @@
       font-size: 16px;
       cursor: pointer;
     }
+
+    .product {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .url {
+      font-size: 13px;
+      color: #007bff;
+      word-break: break-all;
+    }
+
+    .delete {
+      margin-top: 6px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -59,14 +91,13 @@
 
 <h2>Admin Dashboard</h2>
 
-<!-- 3 OPTIONS -->
 <div class="menu">
   <button class="create" onclick="showCreate()">➕ Create New Product</button>
   <button class="all" onclick="showProducts()">📦 All Products</button>
   <button class="logout" onclick="logout()">🚪 Logout</button>
 </div>
 
-<!-- CREATE PRODUCT FORM -->
+<!-- CREATE PRODUCT -->
 <div class="card" id="createBox">
   <h3>Create Product</h3>
 
@@ -76,6 +107,18 @@
   <label>Product Name</label>
   <input id="name">
 
+  <label>Model Name</label>
+  <input id="model">
+
+  <label>Invoice Number</label>
+  <input id="invoiceNo">
+
+  <label>Invoice Date</label>
+  <input id="invoiceDate" type="date">
+
+  <label>Production Date</label>
+  <input id="productionDate" type="date">
+
   <label>Power</label>
   <input id="power">
 
@@ -84,6 +127,12 @@
 
   <label>Warranty</label>
   <input id="warranty">
+
+  <label>Product Image</label>
+  <input type="file" id="image" accept="image/*">
+
+  <label>Datasheet (PDF)</label>
+  <input type="file" id="datasheet" accept="application/pdf">
 
   <button class="save" onclick="saveProduct()">Save Product</button>
 </div>
@@ -96,18 +145,18 @@
 
 <script>
 function hideAll() {
-  createBox.style.display = "none";
-  productsBox.style.display = "none";
+  document.getElementById("createBox").style.display = "none";
+  document.getElementById("productsBox").style.display = "none";
 }
 
 function showCreate() {
   hideAll();
-  createBox.style.display = "block";
+  document.getElementById("createBox").style.display = "block";
 }
 
 function showProducts() {
   hideAll();
-  productsBox.style.display = "block";
+  document.getElementById("productsBox").style.display = "block";
   loadProducts();
 }
 
@@ -115,33 +164,79 @@ function logout() {
   window.location.href = "/logout";
 }
 
+/* ---------- SAVE PRODUCT ---------- */
 async function saveProduct() {
-  const product = {
-    id: id.value,
-    name: name.value,
-    power: power.value,
-    voltage: voltage.value,
-    warranty: warranty.value
-  };
+  const formData = new FormData();
 
-  await fetch("/api/products", {
+  const id = document.getElementById("id").value.trim();
+  const name = document.getElementById("name").value.trim();
+
+  if (!id || !name) {
+    alert("❌ Product ID and Product Name are required");
+    return;
+  }
+
+  formData.append("id", id);
+  formData.append("name", name);
+  formData.append("model", model.value);
+  formData.append("invoiceNo", invoiceNo.value);
+  formData.append("invoiceDate", invoiceDate.value);
+  formData.append("productionDate", productionDate.value);
+  formData.append("power", power.value);
+  formData.append("voltage", voltage.value);
+  formData.append("warranty", warranty.value);
+
+  if (image.files[0]) formData.append("image", image.files[0]);
+  if (datasheet.files[0]) formData.append("datasheet", datasheet.files[0]);
+
+  const res = await fetch("/api/products", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(product)
+    body: formData
   });
 
-  alert("✅ Product saved");
-  hideAll();
+  if (res.ok) {
+    alert("✅ Product saved successfully");
+    hideAll();
+  } else {
+    alert("❌ Failed to save product");
+  }
 }
 
+/* ---------- LOAD PRODUCTS ---------- */
 async function loadProducts() {
   const res = await fetch("/api/products");
   const products = await res.json();
 
+  const list = document.getElementById("list");
   list.innerHTML = "";
+
   products.forEach(p => {
-    list.innerHTML += `<p><b>${p.id}</b> - ${p.name}</p>`;
+    list.innerHTML += `
+      <div class="product">
+        <b>${p.id}</b> - ${p.name || "-"}<br>
+        <span class="url">${window.location.origin}/product/${p.id}</span><br>
+        <button class="delete" onclick="deleteProduct('${p.id}')">
+          🗑 Delete
+        </button>
+      </div>
+    `;
   });
+}
+
+/* ---------- DELETE PRODUCT ---------- */
+async function deleteProduct(id) {
+  if (!confirm(`Delete product ${id}?`)) return;
+
+  const res = await fetch(`/api/products/${id}`, {
+    method: "DELETE"
+  });
+
+  if (res.ok) {
+    alert("✅ Product deleted");
+    loadProducts();
+  } else {
+    alert("❌ Failed to delete product");
+  }
 }
 </script>
 

@@ -11,9 +11,9 @@
   "type": "commonjs",
   "dependencies": {
     "express": "^5.2.1",
-    "express-session": "^1.18.2"
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/abhishektiwari4824-lang/qr-company-server.git"

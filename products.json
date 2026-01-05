@@ -31,5 +31,39 @@
     "warranty": "5 Years",
     "image": "/images/300W.jpg",
     "datasheet": "/datasheets/300w.pdf"
+  },
+  {
+    "id": "FL800",
+    "name": "800W LED Flood Light",
+    "power": "140 Watt",
+    "voltage": "220V AC",
+    "warranty": "2 Years"
+  },
+  {
+    "id": "FL300",
+    "name": "300W LED Flood Light",
+    "power": "300W",
+    "voltage": "220V AC",
+    "warranty": "2 Years"
+  },
+  {
+    "id": "FL500",
+    "name": "500W LED Flood Light",
+    "power": "500W",
+    "voltage": "220V AC",
+    "warranty": "2 Years"
+  },
+  {
+    "id": "FL700",
+    "name": "700W LED Flood Light",
+    "model": "ORB-700",
+    "invoiceNo": "INV-123",
+    "invoiceDate": "2026-01-06",
+    "productionDate": "2026-01-06",
+    "power": "700W",
+    "voltage": "220V AC",
+    "warranty": "2 Years",
+    "image": "/images/1767639831250-800W.jpg",
+    "datasheet": "/datasheets/1767639831251-800w.pdf"
   }
 ]

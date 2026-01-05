@@ -13,7 +13,7 @@
     }
 
     .card {
-      max-width: 400px;
+      max-width: 420px;
       background: white;
       margin: auto;
       padding: 20px;
@@ -24,6 +24,13 @@
     h1 {
       font-size: 22px;
       text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .img-box img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 15px;
     }
 
     .row {
@@ -31,24 +38,54 @@
       justify-content: space-between;
       padding: 8px 0;
       border-bottom: 1px solid #eee;
+      font-size: 14px;
     }
 
     .label {
       font-weight: bold;
+      color: #333;
+    }
+
+    .download {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    .download:hover {
+      background: #0056b3;
     }
 
     .company {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 18px;
       color: #777;
-      font-size: 14px;
+      font-size: 13px;
     }
   </style>
 </head>
 
 <body>
   <div class="card">
+
+    <!-- PRODUCT IMAGE -->
+    <div class="img-box">
+      <img id="img" alt="Product Image">
+    </div>
+
+    <!-- PRODUCT NAME -->
     <h1 id="name">Product Name</h1>
+
+    <!-- PRODUCT DETAILS -->
+    <div class="row">
+      <span class="label">Model</span>
+      <span id="model"></span>
+    </div>
 
     <div class="row">
       <span class="label">Power</span>
@@ -65,6 +102,24 @@
       <span id="warranty"></span>
     </div>
 
+    <div class="row">
+      <span class="label">Invoice No</span>
+      <span id="invoiceNo"></span>
+    </div>
+
+    <div class="row">
+      <span class="label">Invoice Date</span>
+      <span id="invoiceDate"></span>
+    </div>
+
+    <div class="row">
+      <span class="label">Production Date</span>
+      <span id="productionDate"></span>
+    </div>
+
+    <!-- DATASHEET DOWNLOAD -->
+    <a id="pdf" class="download" target="_blank">📄 Download Datasheet</a>
+
     <div class="company">
       © Orbital LED Solutions
     </div>
@@ -74,10 +129,29 @@
     // Data injected by server
     const product = PRODUCT_DATA;
 
-    document.getElementById("name").innerText = product.name;
-    document.getElementById("power").innerText = product.power;
-    document.getElementById("voltage").innerText = product.voltage;
-    document.getElementById("warranty").innerText = product.warranty;
+    // Basic Info
+    document.getElementById("name").innerText = product.name || "-";
+    document.getElementById("model").innerText = product.model || "-";
+    document.getElementById("power").innerText = product.power || "-";
+    document.getElementById("voltage").innerText = product.voltage || "-";
+    document.getElementById("warranty").innerText = product.warranty || "-";
+    document.getElementById("invoiceNo").innerText = product.invoiceNo || "-";
+    document.getElementById("invoiceDate").innerText = product.invoiceDate || "-";
+    document.getElementById("productionDate").innerText = product.productionDate || "-";
+
+    // Image
+    if (product.image) {
+      document.getElementById("img").src = product.image;
+    } else {
+      document.getElementById("img").style.display = "none";
+    }
+
+    // Datasheet
+    if (product.datasheet) {
+      document.getElementById("pdf").href = product.datasheet;
+    } else {
+      document.getElementById("pdf").style.display = "none";
+    }
   </script>
 </body>
 </html>
