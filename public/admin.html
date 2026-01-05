@@ -9,79 +9,48 @@
       font-family: Arial;
       background: #f4f6f8;
       padding: 20px;
-    }
-
-    h2 {
       text-align: center;
     }
 
-    .menu {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin: 20px 0;
-    }
+    h2 { margin-bottom: 20px; }
 
     .menu button {
       padding: 12px 20px;
-      font-size: 15px;
+      margin: 8px;
+      font-size: 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      background: #007bff;
       color: white;
     }
 
+    .create { background: #28a745; }
+    .all { background: #007bff; }
+    .logout { background: #dc3545; }
+
     .card {
-      max-width: 520px;
-      margin: 20px auto;
+      max-width: 500px;
       background: white;
+      margin: 20px auto;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       display: none;
+      text-align: left;
     }
 
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
+    label { font-weight: bold; display: block; margin-top: 10px; }
+    input { width: 100%; padding: 8px; margin-top: 4px; }
 
-    input {
+    .save {
+      margin-top: 15px;
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-    }
-
-    .save-btn {
+      padding: 10px;
       background: #28a745;
       color: white;
-      padding: 10px;
       border: none;
-      width: 100%;
-      margin-top: 15px;
       font-size: 16px;
       cursor: pointer;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 6px;
-    }
-
-    .logout {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .logout a {
-      color: #dc3545;
-      text-decoration: none;
-      font-weight: bold;
     }
   </style>
 </head>
@@ -90,14 +59,14 @@
 
 <h2>Admin Dashboard</h2>
 
-<!-- MENU -->
+<!-- 3 OPTIONS -->
 <div class="menu">
-  <button onclick="showCreate()">➕ Create Product</button>
-  <button onclick="showProducts()">📦 All Products</button>
-  <button onclick="logout()">🚪 Logout</button>
+  <button class="create" onclick="showCreate()">➕ Create New Product</button>
+  <button class="all" onclick="showProducts()">📦 All Products</button>
+  <button class="logout" onclick="logout()">🚪 Logout</button>
 </div>
 
-<!-- CREATE PRODUCT -->
+<!-- CREATE PRODUCT FORM -->
 <div class="card" id="createBox">
   <h3>Create Product</h3>
 
@@ -116,20 +85,16 @@
   <label>Warranty</label>
   <input id="warranty">
 
-  <button class="save-btn" onclick="saveProduct()">Save Product</button>
-
-  <p id="productUrl" style="margin-top:10px;font-weight:bold;"></p>
+  <button class="save" onclick="saveProduct()">Save Product</button>
 </div>
 
 <!-- ALL PRODUCTS -->
 <div class="card" id="productsBox">
   <h3>All Products</h3>
-  <div id="productList"></div>
+  <div id="list"></div>
 </div>
 
 <script>
-let products = [];
-
 function hideAll() {
   createBox.style.display = "none";
   productsBox.style.display = "none";
@@ -150,30 +115,13 @@ function logout() {
   window.location.href = "/logout";
 }
 
-async function loadProducts() {
-  const res = await fetch("/api/products");
-  products = await res.json();
-
-  productList.innerHTML = "";
-  products.forEach(p => {
-    productList.innerHTML += `
-      <div class="row">
-        <div><b>${p.id}</b> - ${p.name}</div>
-        <div>
-          <a href="/product/${p.id}" target="_blank">🔗</a>
-        </div>
-      </div>
-    `;
-  });
-}
-
 async function saveProduct() {
   const product = {
-    id: id.value.trim(),
-    name: name.value.trim(),
-    power: power.value.trim(),
-    voltage: voltage.value.trim(),
-    warranty: warranty.value.trim()
+    id: id.value,
+    name: name.value,
+    power: power.value,
+    voltage: voltage.value,
+    warranty: warranty.value
   };
 
   await fetch("/api/products", {
@@ -182,8 +130,18 @@ async function saveProduct() {
     body: JSON.stringify(product)
   });
 
-  const url = `${location.origin}/product/${product.id}`;
-  productUrl.innerHTML = `Product URL: <a href="${url}" target="_blank">${url}</a>`;
+  alert("✅ Product saved");
+  hideAll();
+}
+
+async function loadProducts() {
+  const res = await fetch("/api/products");
+  const products = await res.json();
+
+  list.innerHTML = "";
+  products.forEach(p => {
+    list.innerHTML += `<p><b>${p.id}</b> - ${p.name}</p>`;
+  });
 }
 </script>
 
