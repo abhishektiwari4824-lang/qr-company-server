@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin Panel - Product Manager</title>
+  <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -10,61 +10,182 @@
       background: #f4f6f8;
       padding: 20px;
     }
+
+    h2 {
+      text-align: center;
+    }
+
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .menu button {
+      padding: 12px 20px;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+    }
+
     .card {
-      max-width: 400px;
+      max-width: 520px;
+      margin: 20px auto;
       background: white;
-      margin: auto;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: none;
     }
-    h2 { text-align: center; }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
     input {
       width: 100%;
       padding: 8px;
-      margin: 6px 0;
+      margin-top: 4px;
     }
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #007bff;
+
+    .save-btn {
+      background: #28a745;
       color: white;
+      padding: 10px;
       border: none;
+      width: 100%;
+      margin-top: 15px;
       font-size: 16px;
+      cursor: pointer;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 6px;
+    }
+
+    .logout {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .logout a {
+      color: #dc3545;
+      text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <h2>Product Admin Panel</h2>
 
-    <input id="id" placeholder="Product ID (FL100)">
-    <input id="name" placeholder="Product Name">
-    <input id="power" placeholder="Power">
-    <input id="voltage" placeholder="Voltage">
-    <input id="warranty" placeholder="Warranty">
+<h2>Admin Dashboard</h2>
 
-    <button onclick="saveProduct()">Save Product</button>
-  </div>
+<!-- MENU -->
+<div class="menu">
+  <button onclick="showCreate()">➕ Create Product</button>
+  <button onclick="showProducts()">📦 All Products</button>
+  <button onclick="logout()">🚪 Logout</button>
+</div>
 
-  <script>
-    function saveProduct() {
-      const product = {
-        id: document.getElementById("id").value,
-        name: document.getElementById("name").value,
-        power: document.getElementById("power").value,
-        voltage: document.getElementById("voltage").value,
-        warranty: document.getElementById("warranty").value
-      };
+<!-- CREATE PRODUCT -->
+<div class="card" id="createBox">
+  <h3>Create Product</h3>
 
-      fetch("/admin/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product)
-      })
-      .then(() => alert("✅ Product saved successfully"));
-    }
-  </script>
+  <label>Product ID</label>
+  <input id="id">
+
+  <label>Product Name</label>
+  <input id="name">
+
+  <label>Power</label>
+  <input id="power">
+
+  <label>Voltage</label>
+  <input id="voltage">
+
+  <label>Warranty</label>
+  <input id="warranty">
+
+  <button class="save-btn" onclick="saveProduct()">Save Product</button>
+
+  <p id="productUrl" style="margin-top:10px;font-weight:bold;"></p>
+</div>
+
+<!-- ALL PRODUCTS -->
+<div class="card" id="productsBox">
+  <h3>All Products</h3>
+  <div id="productList"></div>
+</div>
+
+<script>
+let products = [];
+
+function hideAll() {
+  createBox.style.display = "none";
+  productsBox.style.display = "none";
+}
+
+function showCreate() {
+  hideAll();
+  createBox.style.display = "block";
+}
+
+function showProducts() {
+  hideAll();
+  productsBox.style.display = "block";
+  loadProducts();
+}
+
+function logout() {
+  window.location.href = "/logout";
+}
+
+async function loadProducts() {
+  const res = await fetch("/api/products");
+  products = await res.json();
+
+  productList.innerHTML = "";
+  products.forEach(p => {
+    productList.innerHTML += `
+      <div class="row">
+        <div><b>${p.id}</b> - ${p.name}</div>
+        <div>
+          <a href="/product/${p.id}" target="_blank">🔗</a>
+        </div>
+      </div>
+    `;
+  });
+}
+
+async function saveProduct() {
+  const product = {
+    id: id.value.trim(),
+    name: name.value.trim(),
+    power: power.value.trim(),
+    voltage: voltage.value.trim(),
+    warranty: warranty.value.trim()
+  };
+
+  await fetch("/api/products", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(product)
+  });
+
+  const url = `${location.origin}/product/${product.id}`;
+  productUrl.innerHTML = `Product URL: <a href="${url}" target="_blank">${url}</a>`;
+}
+</script>
+
 </body>
 </html>

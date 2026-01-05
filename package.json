@@ -12,5 +12,15 @@
   "dependencies": {
     "express": "^5.2.1",
     "express-session": "^1.18.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abhishektiwari4824-lang/qr-company-server.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/abhishektiwari4824-lang/qr-company-server/issues"
+  },
+  "homepage": "https://github.com/abhishektiwari4824-lang/qr-company-server#readme"
 }

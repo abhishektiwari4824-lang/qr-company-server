@@ -1,13 +1,13 @@
 [
   {
     "id": "FL100",
-    "name": "100W LED Flood Light",
+    "model": "8",
+    "invoiceNo": "INV-123",
+    "invoiceDate": "2026-01-05",
+    "productionDate": "2026-01-05",
     "power": "100 Watt",
     "voltage": "220V AC",
-    "lumens": "10000 lm",
-    "color": "Cool White",
     "warranty": "2 Years",
-    "price": "₹2500",
     "image": "/images/100W.jpg",
     "datasheet": "/datasheets/100w.pdf"
   },

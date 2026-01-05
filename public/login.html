@@ -8,22 +8,32 @@
     body {
       font-family: Arial;
       background: #f4f6f8;
-      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
+
     .card {
-      max-width: 350px;
       background: white;
-      margin: auto;
-      padding: 20px;
+      padding: 25px;
       border-radius: 10px;
+      width: 320px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    h2 { text-align: center; }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
     input {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
+      margin-bottom: 12px;
+      font-size: 14px;
     }
+
     button {
       width: 100%;
       padding: 10px;
@@ -31,34 +41,48 @@
       color: white;
       border: none;
       font-size: 16px;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <h2>Admin Login</h2>
-    <input id="password" type="password" placeholder="Enter Admin Password">
-    <button onclick="login()">Login</button>
-  </div>
 
-  <script>
-    function login() {
-      fetch("/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          password: document.getElementById("password").value
-        })
-      })
-      .then(res => {
-        if (res.ok) {
-          window.location.href = "/admin.html";
-        } else {
-          alert("❌ Wrong Password");
-        }
-      });
-    }
-  </script>
+<div class="card">
+  <h2>Admin Login</h2>
+
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <div id="error" class="error"></div>
+</div>
+
+<script>
+async function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+
+  if (res.ok) {
+    window.location.href = "/admin.html";
+  } else {
+    document.getElementById("error").innerText = "❌ Invalid username or password";
+  }
+}
+</script>
+
 </body>
 </html>
